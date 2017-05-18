@@ -200,8 +200,15 @@ class Input
         {
             $row = $this->redis->hGetAll("input:$id");
             $lastvalue = $this->redis->hmget("input:lastvalue:$id",array('time','value'));
-            $row['time'] = $lastvalue['time'];
-            $row['value'] = $lastvalue['value'];
+            // Fix break point where value is NAN
+            $lastvalue['time'] = $lastvalue['time'] * 1; 
+            $row['time'] = (int) $lastvalue['time'];
+            if (is_nan($row['time'])) $row['time'] = 0;
+         
+            $lastvalue['value'] = $lastvalue['value'] * 1; 
+            $row['value'] = (float) $lastvalue['value'];
+            if (is_nan($row['value'])) $row['value'] = 0;
+         
             $inputs[] = $row;
         }
         return $inputs;
